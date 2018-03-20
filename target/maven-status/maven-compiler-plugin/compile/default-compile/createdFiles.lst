@@ -1,0 +1,6 @@
+com\zsidodaniel\orderprocesser\dbconnector\DatabaseConnectionFactory.class
+dao\OrderDao.class
+dao\OrderItemDao.class
+parser\CsvParser.class
+validation\OrderValidator.class
+com\zsidodaniel\orderprocesser\App.class

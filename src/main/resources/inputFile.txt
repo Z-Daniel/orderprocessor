@@ -1,0 +1,4 @@
+LineNumber;OrderItemId;OrderId;BuyerName;BuyerEmail;Address;Postcode;SalePrice;ShippingPrice;SKU;Status;OrderDate
+1;1;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;1200;400;12154-BLK-XL;IN_STOCK;2018-02-04
+1;2;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;1500;400;12345-WHT-XL;IN_STOCK;2018-02-04
+1;2;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;1430.43;4000.32;12345-WHT-XL;IN_STOCK;2018-02-04
