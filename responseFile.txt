@@ -1,3 +1,10 @@
 LineNumber;Status;Message
-1;ERROR;Line with LineNumber 1  has no orderItemId or it has been already registered or its format is invalid.
-2;ERROR;Line with LineNumber 2  has no orderItemId or it has been already registered or its format is invalid.
+1;OK;
+2;OK;
+3;OK;
+4;OK;
+5;OK;
+6;OK;
+7;OK;
+8;OK;
+9;OK;

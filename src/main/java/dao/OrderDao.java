@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.zsidodaniel.orderprocesser.dbconnector.DatabaseConnectionFactory;
+import com.zsidodaniel.orderprocessor.dbconnector.DatabaseConnectionFactory;
 
 /**
  * Dao for accessing and modifying data in the order table.

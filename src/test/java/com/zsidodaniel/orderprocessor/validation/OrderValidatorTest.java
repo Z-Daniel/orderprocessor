@@ -1,4 +1,4 @@
-package com.zsidodaniel.orderprocesser.validation;
+package com.zsidodaniel.orderprocessor.validation;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

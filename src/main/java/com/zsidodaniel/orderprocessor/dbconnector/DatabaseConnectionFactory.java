@@ -1,4 +1,4 @@
-package com.zsidodaniel.orderprocesser.dbconnector;
+package com.zsidodaniel.orderprocessor.dbconnector;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

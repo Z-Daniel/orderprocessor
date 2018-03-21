@@ -1,4 +1,4 @@
-package com.zsidodaniel.orderprocesser;
+package com.zsidodaniel.orderprocessor;
 
 import parser.CsvParser;
 

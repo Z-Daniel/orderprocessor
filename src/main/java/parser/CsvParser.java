@@ -14,7 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 
-import com.zsidodaniel.orderprocesser.dbconnector.DatabaseConnectionFactory;
+import com.zsidodaniel.orderprocessor.dbconnector.DatabaseConnectionFactory;
 
 import dao.OrderDao;
 import dao.OrderItemDao;
@@ -80,10 +80,8 @@ public class CsvParser {
 		File csvFile = new File(classLoader.getResource(INPUT_CSV_NAME).getFile());
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 			String line;
-			int i = 0;
 			if(CSV_HAS_HEADER) {	
 				line = br.readLine();
-				i++;
 			}
 			OrderDao orderDao = OrderDao.getInstance();
 			OrderItemDao orderItemDao = OrderItemDao.getInstance();
@@ -124,7 +122,6 @@ public class CsvParser {
 					}
 				}
 				writeResponseFile(responseOfValidation.getMessage(), responseOfValidation.getLineNumber(), responseOfValidation.getResponseFileStatus());
-				i++;
 			}
  			sendFileThroughFTP();
 		} catch (IOException e) {

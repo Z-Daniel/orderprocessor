@@ -1,3 +1,10 @@
 LineNumber;OrderItemId;OrderId;BuyerName;BuyerEmail;Address;Postcode;SalePrice;ShippingPrice;SKU;Status;OrderDate
 1;1;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;1500;400;12345-WHT-XL;IN_STOCK;
 2;2;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;132.43;545.75;12345-BLK-S;OUT_OF_STOCK;
+3;3;1;Zsidó Dániel;zsidodaniel@freemail.hu;Pécs Váci utca 3.;7621;15632.43;325.75;12345-BLK-S;IN_STOCK;
+4;4;2;Nagy Péter;peti01@freemail.hu;Pécs Váci utca 3.;2314;1600;400;12345-WHT-XL;IN_STOCK;2018-01-04
+5;5;2;Nagy Péter;peti01@freemail.hu;Pécs Váci utca 3.;2314;132.43;545.75;12345-BLK-S;OUT_OF_STOCK;2018-01-04
+6;6;2;Nagy Péter;peti01@freemail.hu;Pécs Váci utca 3.;2314;15632.43;325.75;12345-BLK-S;IN_STOCK;2018-01-04
+7;7;3;Kiss Eszter;kiss_eszter01@gmail.com;Érd Fő út 12.;3211;1700;500;45678-ASD-XL;IN_STOCK;2018-02-15
+8;8;3;Kiss Eszter;kiss_eszter01@gmail.com;Érd Fő út 12.;3211;132.43;545.75;45678-POI-R;OUT_OF_STOCK;2018-02-15
+9;9;3;Kiss Eszter;kiss_eszter01@gmail.com;Érd Fő út 12.;3211;15632.43;325.75;45678-QWE-M;IN_STOCK;2018-02-15
