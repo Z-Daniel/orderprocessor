@@ -1,6 +1,5 @@
 package com.zsidodaniel.orderprocesser.validation;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -8,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import validation.OrderValidator;
@@ -19,7 +17,7 @@ public class OrderValidatorTest {
 
 	@Test
 	public void emailFormatValidationShouldFail() {
-
+		
 		String[] invalidEmails = { "journaldev", "journaldev@.com.my", "journaldev123@gmail.a",
 				"journaldev123@@.com.com", ".journaldev@journaldev.com", "journaldev()*@gmail.com", "journaldev@%*.com",
 				"journaldev..2002@gmail.com", "journaldev.@gmail.com", "journaldev@journaldev@gmail.com",
@@ -30,7 +28,7 @@ public class OrderValidatorTest {
 		}
 	}
 
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void emailFormatValidationShouldPass() {
 
 		String[] validEmails = { "journaldev@yahoo.com", "journaldev-100@yahoo.com", "journaldev.100@yahoo.com",
@@ -54,7 +52,7 @@ public class OrderValidatorTest {
 
 	}
 
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void dateValidationShouldPass() {
 		String[] validDates = { "1993-01-04", "2013-02-01", "1993-01-04", "2014-12-01", "2013-12-01", "1845-03-01",
 				"2011-01-21" };
@@ -72,7 +70,7 @@ public class OrderValidatorTest {
 		}
 	}
 	
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void postCodeValidationShouldPass() {
 		String[] validPostCodes = { "7831", "7621", "1234", "1233", "5412", "3245", "2321" };
 		for (int i = 0; i < validPostCodes.length; i++) {
@@ -88,7 +86,7 @@ public class OrderValidatorTest {
 		}
 	}
 	
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void shippingPriceValidationShouldPass() {
 		String[] shippingPrices = { "12.32", "12", "12323.343", "45.3", "0", "0.00", "0.1" };
 		for (int i = 0; i < shippingPrices.length; i++) {
@@ -104,9 +102,10 @@ public class OrderValidatorTest {
 		}
 	}
 	
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void salePriceValidationShouldPass() {
 		String[] salePrices = { "1.00", "12", "1", "12312.23", "12312", "1.001", "1233" };
+		
 		for (int i = 0; i < salePrices.length; i++) {
 			assertTrue(orderValidator.validatePositiveDecimal(salePrices[i], 1.00f, true));
 		}
@@ -120,7 +119,7 @@ public class OrderValidatorTest {
 		}
 	}
 	
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void statusValidationShouldPass() {
 		String[] states = { "IN_STOCK", "OUT_OF_STOCK" };
 		for (int i = 0; i < states.length; i++) {

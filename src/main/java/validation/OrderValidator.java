@@ -48,12 +48,10 @@ public class OrderValidator {
 		return responseOfValidation;
 	}
 	
-	// TODO az order fieldeket csak akkor kell validálni, ha insertelni is kell
-	
-	public ResponseOfValidation validateLine(String[] csvFields, int indexOfRow) {
-		final String messagePrefix = "Line with LineNumber " + csvFields[CsvParser.INDEX_OF_LINENUMBER] + " (Rowindex in file: "
-				+ indexOfRow + ") ";
+	public ResponseOfValidation validateLine(String[] csvFields) {
+		final String messagePrefix = "Line with LineNumber " + csvFields[CsvParser.INDEX_OF_LINENUMBER] + " ";
 		responseOfValidation = new ResponseOfValidation(csvFields[CsvParser.INDEX_OF_LINENUMBER]);
+		System.out.println("Starting validation of line number " + csvFields[CsvParser.INDEX_OF_LINENUMBER]);
 		if (csvFields.length < CsvParser.CSV_NUMBER_OF_FIELDS - 1) {
 			System.out.println(csvFields.length);
 			return addErrorAndMessage(messagePrefix + "has unsufficient number of fields.");
@@ -79,7 +77,7 @@ public class OrderValidator {
 			return addErrorAndMessage(messagePrefix + "has no buyerEmail or it its format is invalid.");
 		}
 		if(csvFields.length == CsvParser.CSV_NUMBER_OF_FIELDS) {
-			if (!validateDateFormat(csvFields[CsvParser.INDEX_OF_ORDERDATE])) { // TODO üres
+			if (!validateDateFormat(csvFields[CsvParser.INDEX_OF_ORDERDATE])) {
 				return addErrorAndMessage(messagePrefix + "has invalid orderDate format.");
 			}
 		} else {
@@ -152,6 +150,8 @@ public class OrderValidator {
 	        return false;
 	    }
 	}
+	
+	
 	
 	public boolean validateStatus(String status) {
 		try {

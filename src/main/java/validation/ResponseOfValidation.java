@@ -5,6 +5,12 @@ import java.sql.Date;
 import dao.OrderItemStatus;
 import dao.ResponseFileStatus;
 
+/**
+ * Contains the result of a linevalidation.
+ * @author Zsidó Dániel
+ *
+ */
+
 public class ResponseOfValidation {
 
 	private String lineNumber;

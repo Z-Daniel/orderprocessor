@@ -7,11 +7,18 @@ import java.sql.SQLException;
 
 import com.zsidodaniel.orderprocesser.dbconnector.DatabaseConnectionFactory;
 
-public class OrderItemDao {
+/**
+ * Dao for accessing and modifying data in the order_item table.
+ * @author Zsidó Dániel
+ *
+ */
 
-private static OrderItemDao instance = null;
+public class OrderItemDao {
+	
+	private static OrderItemDao instance = null;
 	
 	private static final DatabaseConnectionFactory databaseConnectionFactory = DatabaseConnectionFactory.getInstance(); 	
+	private static final String TABLENAME = "order_item";
 	
 	public static OrderItemDao getInstance() {
 		synchronized (OrderItemDao.class) {
@@ -26,7 +33,7 @@ private static OrderItemDao instance = null;
 	}
 	
 	public ResultSet findById(Long id) {
-		String queryById = "select * from \"order_item\" where order_id = ?";
+		String queryById = "select * from \"" + TABLENAME + "\" where order_item_id = ?";
 		
 		try(Connection conn = databaseConnectionFactory.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement(queryById);
@@ -40,10 +47,11 @@ private static OrderItemDao instance = null;
 	}
 	
 	public Integer save(Long orderItemId, Long orderId, Float salePrice, Float shippingPrice, String sku, OrderItemStatus orderItemStatus) {
-		String insertSQL = "insert into \"order_item\" (order_item_id, order_id, sale_price, shipping_price,"
+		String insertSQL = "insert into \"" + TABLENAME + "\" (order_item_id, order_id, sale_price, shipping_price,"
 							+ "total_item_price, sku, status) values"
 							+ "(?,?,?,?,?,?,?)";
 		try(Connection conn = databaseConnectionFactory.getConnection()) {
+			System.out.println("Trying to insert new orderItem into the database with id: " + orderItemId);
 			PreparedStatement statement = conn.prepareStatement(insertSQL);
 			statement.setLong(1, orderItemId);
 			statement.setLong(2, orderId);

@@ -8,16 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Date;
-import java.util.HashMap;
-import java.util.stream.Stream;
+import java.util.Properties;
 
 import com.zsidodaniel.orderprocesser.dbconnector.DatabaseConnectionFactory;
 
@@ -27,11 +22,24 @@ import dao.ResponseFileStatus;
 import validation.OrderValidator;
 import validation.ResponseOfValidation;
 
+/**
+ * Parse data from the input file, commit results to a response file
+ * and to the database.
+ * @author Zsidó Dániel
+ *
+ */
+
 public class CsvParser {
 
 	private static CsvParser instance = null;
 	
 	private final OrderValidator orderValidator = OrderValidator.getInstance();
+	
+	private static final String PROPERTY_FILENAME = "orderprocessor.properties";
+	private static final String USERNAME_PROP = "ftp.username";
+	private static final String PASSWORD_PROP = "ftp.password";
+	private static final String PATH_PROP = "ftp.path";
+	private static final String HOST_PROP = "ftp.host";
 	
 	private static final String HEADER_OF_RESPONSE = "LineNumber;Status;Message";
 	private static final String RESPONSE_CSV_NAME = "responseFile.txt";
@@ -73,34 +81,47 @@ public class CsvParser {
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 			String line;
 			int i = 0;
-			if(CSV_HAS_HEADER) {
+			if(CSV_HAS_HEADER) {	
 				line = br.readLine();
 				i++;
 			}
 			OrderDao orderDao = OrderDao.getInstance();
 			OrderItemDao orderItemDao = OrderItemDao.getInstance();
 			String[] csvFields = new String[CSV_NUMBER_OF_FIELDS];
+			System.out.println("Starting to read from csv file: " + INPUT_CSV_NAME);
  			while ((line = br.readLine()) != null) {
-
+ 				
 				csvFields = line.split(CSV_SPLITARATOR);
-				ResponseOfValidation responseOfValidation = orderValidator.validateLine(csvFields, i);
+				ResponseOfValidation responseOfValidation = orderValidator.validateLine(csvFields);
 				if(responseOfValidation.getResponseFileStatus() == ResponseFileStatus.OK) {
 					if(responseOfValidation.isOrderShouldBeInserted()) {
-						orderDao.save(responseOfValidation.getOrderId(),
+						if(orderDao.save(responseOfValidation.getOrderId(),
 									  csvFields[INDEX_OF_BUYERNAME],
 									  responseOfValidation.getBuyerEmail(),
 									  responseOfValidation.getOrderDate(),
 									  csvFields[INDEX_OF_ADDRESS],
-									  responseOfValidation.getPostCode());
+									  responseOfValidation.getPostCode()) == null) {
+							System.out.println("Failed to insert new order into the database.");
+						} else {
+							System.out.println("Order was successfully inserted into the database.");
+						}
 					}
-					orderItemDao.save(responseOfValidation.getOrderItemId(),
+					if(orderItemDao.save(responseOfValidation.getOrderItemId(),
 									  responseOfValidation.getOrderId(),
 									  responseOfValidation.getSalePrice(),
 									  responseOfValidation.getShippingPrice(),
 									  csvFields[INDEX_OF_SKU],
-									  responseOfValidation.getOrderItemStatus());
-					orderDao.addToOrderTotalValue(responseOfValidation.getOrderId(),
-												  responseOfValidation.getSalePrice() + responseOfValidation.getShippingPrice());
+									  responseOfValidation.getOrderItemStatus()) == null) {
+						System.out.println("Failed to insert new orderItem into the database.");
+					} else {
+						System.out.println("OrderItem was successfully inserted into the database.");
+					}
+					if(orderDao.addToOrderTotalValue(responseOfValidation.getOrderId(),
+												  responseOfValidation.getSalePrice() + responseOfValidation.getShippingPrice()) == null) {
+						System.out.println("Failed to update order.");
+					} else {
+						System.out.println("Update of order was successful.");
+					}
 				}
 				writeResponseFile(responseOfValidation.getMessage(), responseOfValidation.getLineNumber(), responseOfValidation.getResponseFileStatus());
 				i++;
@@ -141,12 +162,19 @@ public class CsvParser {
 	}
 
 	private void sendFileThroughFTP() {
-		String ftpUrl = "ftp://localhost:14147";
-        String host = "localhost";
-        String user = "orderprocessor";
-        String pass = "1234";
-        String filePath = "./responseFile.txt";
-        String uploadPath = "/";
+		
+		Properties properties = getProperties();
+		
+		if( properties == null) {
+			return;
+		}
+		System.out.println("Initializing ftp connection");
+		String ftpUrl = "ftp://%s:%s@%s/%s;type=i";
+        String host = properties.getProperty(HOST_PROP, "localhost:21");
+        String user = properties.getProperty(USERNAME_PROP, "orderprocessor");
+        String pass = properties.getProperty(PASSWORD_PROP, "1234");
+        String filePath = "./" + RESPONSE_CSV_NAME;
+        String uploadPath = properties.getProperty(PATH_PROP, "/") + RESPONSE_CSV_NAME;
         
         final int BUFFER_SIZE = 4096;
  
@@ -154,7 +182,7 @@ public class CsvParser {
         System.out.println("Upload URL: " + ftpUrl);
  
         try {
-            URL url = new URL(ftpUrl);
+        	URL url = new URL(ftpUrl);
             URLConnection conn = url.openConnection();
             OutputStream outputStream = conn.getOutputStream();
             FileInputStream inputStream = new FileInputStream(filePath);
@@ -168,10 +196,27 @@ public class CsvParser {
             inputStream.close();
             outputStream.close();
  
-            System.out.println("File uploaded");
+            System.out.println("Upload of responseFile was successful");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+	}
+	
+	private Properties getProperties() {
+		ClassLoader classLoader = DatabaseConnectionFactory.class.getClassLoader();
+		Properties properties = new Properties(System.getProperties());
+		try (InputStream propertyStream = classLoader.getResourceAsStream(PROPERTY_FILENAME)) {
+
+			properties.load(propertyStream);
+			return properties;
+		} catch (FileNotFoundException fileNotFoundException) {
+			fileNotFoundException.printStackTrace();
+			System.out.println("Unable to find " + PROPERTY_FILENAME + " file in resources!");
+		} catch (IOException ioException) {
+			System.out.println("Could not load " + PROPERTY_FILENAME + " file!");
+			ioException.printStackTrace();
+		}
+		return null;
 	}
 	
 }

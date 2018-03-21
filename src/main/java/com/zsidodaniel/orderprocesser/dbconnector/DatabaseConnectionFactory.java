@@ -8,10 +8,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Connection factory for connecting to the database. Some properties should
+ * be set in the property file on the classpath. Also needs the specified database
+ * jdbc driver as a dependency.
+ * @author Zsidó Dániel
+ *
+ */
+
 public class DatabaseConnectionFactory {
 
-	// name of the database property file found in the resources
-	private static final String PROPERTY_FILENAME = "database-connection.properties";
+	// name of the property file found in the resources
+	private static final String PROPERTY_FILENAME = "orderprocessor.properties";
 
 	// property names in the database properties file
 	private static final String URL_PROP = "jdbc.url";
