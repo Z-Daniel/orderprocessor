@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import com.zsidodaniel.orderprocessor.dbconnector.DatabaseConnectionFactory;
@@ -197,6 +199,11 @@ public class CsvParser {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        try {
+			Files.delete(Paths.get("./" + RESPONSE_CSV_NAME));
+		} catch (IOException e) {
+			System.out.println("Temporary responseFile was not found or could not been deleted.");
+		}
 	}
 	
 	private Properties getProperties() {
