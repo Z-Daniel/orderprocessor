@@ -39,8 +39,8 @@ public class OrderDao {
 			return null;
 		}
 	}
-	//TODO lehet hogy a date-nek defaultban a mai napra kéne mutatnia?
-	public Integer save(Long orderId, String buyerName, String buyerEmail, Date orderDate, Float orderTotalValue, String address, Integer postcode) { //TODO return saved object or boolean
+	
+	public Integer save(Long orderId, String buyerName, String buyerEmail, Date orderDate, String address, Integer postcode) {
 		String insertSQL = "insert into \"order\" (order_id, buyer_name, buyer_email,"
 							+ "order_date, order_total_value, address, postcode) values"
 							+ "(?,?,?,?,?,?,?)";
@@ -50,7 +50,7 @@ public class OrderDao {
 			statement.setString(2, buyerName);
 			statement.setString(3, buyerEmail);
 			statement.setDate(4, orderDate);
-			statement.setFloat(5, orderTotalValue);
+			statement.setFloat(5, 0);
 			statement.setString(6, address);
 			statement.setInt(7, postcode);
 			return statement.executeUpdate();
@@ -62,7 +62,7 @@ public class OrderDao {
 	}
 
 	public Integer addToOrderTotalValue(Long orderId, Float value) {
-		String updateSQL = "update order set order_total_value = order_total_value + ? where order_id = ?";
+		String updateSQL = "update \"order\" set order_total_value = order_total_value + ? where order_id = ?";
 		try(Connection conn = databaseConnectionFactory.getConnection()) {
 			PreparedStatement statement = conn.prepareStatement(updateSQL);
 			statement.setFloat(1, value);

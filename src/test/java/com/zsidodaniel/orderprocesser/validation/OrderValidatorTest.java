@@ -68,7 +68,7 @@ public class OrderValidatorTest {
 	public void postCodeValidationShouldFail() {
 		String[] invalidPostCodes = { "323.12", "asd", "12a3", "123,3", "ad234", "1321d", "2321L" };
 		for (int i = 0; i < invalidPostCodes.length; i++) {
-			assertFalse(orderValidator.validateInteger(invalidPostCodes[i]));
+			assertFalse(orderValidator.validatePostcode(invalidPostCodes[i]));
 		}
 	}
 	
@@ -76,7 +76,7 @@ public class OrderValidatorTest {
 	public void postCodeValidationShouldPass() {
 		String[] validPostCodes = { "7831", "7621", "1234", "1233", "5412", "3245", "2321" };
 		for (int i = 0; i < validPostCodes.length; i++) {
-			assertTrue(orderValidator.validateInteger(validPostCodes[i]));
+			assertTrue(orderValidator.validatePostcode(validPostCodes[i]));
 		}
 	}
 	
@@ -84,7 +84,7 @@ public class OrderValidatorTest {
 	public void shippingPriceValidationShouldFail() {
 		String[] shippingPrices = { "-12.32", "-1", "-12323", "rew", "54.1.2", "3a24ew5", "-232rf2.1" };
 		for (int i = 0; i < shippingPrices.length; i++) {
-			assertFalse(orderValidator.validatePositiveDecimal(shippingPrices[i], 0.00f));
+			assertFalse(orderValidator.validatePositiveDecimal(shippingPrices[i], 0.00f, true));
 		}
 	}
 	
@@ -92,7 +92,7 @@ public class OrderValidatorTest {
 	public void shippingPriceValidationShouldPass() {
 		String[] shippingPrices = { "12.32", "12", "12323.343", "45.3", "0", "0.00", "0.1" };
 		for (int i = 0; i < shippingPrices.length; i++) {
-			assertTrue(orderValidator.validatePositiveDecimal(shippingPrices[i], 0.00f));
+			assertTrue(orderValidator.validatePositiveDecimal(shippingPrices[i], 0.00f, true));
 		}
 	}
 	
@@ -100,7 +100,7 @@ public class OrderValidatorTest {
 	public void salePriceValidationShouldFail() {
 		String[] salePrices = { "0.99", "-12", "-12323.343", "asd", "0", "234r2", "-1.1" };
 		for (int i = 0; i < salePrices.length; i++) {
-			assertFalse(orderValidator.validatePositiveDecimal(salePrices[i], 1.00f));
+			assertFalse(orderValidator.validatePositiveDecimal(salePrices[i], 1.00f, true));
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class OrderValidatorTest {
 	public void salePriceValidationShouldPass() {
 		String[] salePrices = { "1.00", "12", "1", "12312.23", "12312", "1.001", "1233" };
 		for (int i = 0; i < salePrices.length; i++) {
-			assertTrue(orderValidator.validatePositiveDecimal(salePrices[i], 1.00f));
+			assertTrue(orderValidator.validatePositiveDecimal(salePrices[i], 1.00f, true));
 		}
 	}
 	

@@ -15,28 +15,13 @@ import dao.OrderDao;
 import parser.CsvParser;
 
 /**
- * Hello world!
  * AdminAki4kar ftp jelszó
  */
 public class App {
 
     public static void main( String[] args ) {
-    	
-    		OrderDao orderDao = OrderDao.getInstance();
 			CsvParser csvParser = CsvParser.getInstance();
 			csvParser.readCsvFile();
-//			ResultSet rs = orderDao.findById(2);
-//			try {
-//				if(!rs.isBeforeFirst()) { //nullra futhat
-//					System.out.println("Empty");
-//				}
-//				while(rs.next()) {
-//					System.out.println(rs.getString("buyer_name"));
-//				}
-//			} catch (SQLException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
     }
     
 }

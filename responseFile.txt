@@ -1,0 +1,3 @@
+LineNumber;Status;Message
+1;ERROR;Line with LineNumber 1 (Rowindex in file: 1)  has no orderItemId or it has been already registered or its format is invalid.
+2;ERROR;Line with LineNumber 2 (Rowindex in file: 2)  has no orderItemId or it has been already registered or its format is invalid.

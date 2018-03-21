@@ -1,10 +1,10 @@
 package validation;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -15,6 +15,12 @@ import dao.OrderItemDao;
 import dao.OrderItemStatus;
 import dao.ResponseFileStatus;
 import parser.CsvParser;
+
+/**
+ * Validation of order and orderItem read from csv.
+ * @author Zsidó Dániel
+ *
+ */
 
 public class OrderValidator {
 
@@ -42,53 +48,54 @@ public class OrderValidator {
 		return responseOfValidation;
 	}
 	
-	// TODO vizsgálat üres fieldre
-	// TODO date lekezelése (ami lehet üres)
-	// TODO előkészíteni az adatokat insert-re
-	// TODO kitesztelni a db-ből való ellenőrzést
-	// TODO insertek megírása
+	// TODO az order fieldeket csak akkor kell validálni, ha insertelni is kell
 	
 	public ResponseOfValidation validateLine(String[] csvFields, int indexOfRow) {
 		final String messagePrefix = "Line with LineNumber " + csvFields[CsvParser.INDEX_OF_LINENUMBER] + " (Rowindex in file: "
 				+ indexOfRow + ") ";
 		responseOfValidation = new ResponseOfValidation(csvFields[CsvParser.INDEX_OF_LINENUMBER]);
-		
-		if (csvFields.length < CsvParser.CSV_NUMBER_OF_FIELDS) {
+		if (csvFields.length < CsvParser.CSV_NUMBER_OF_FIELDS - 1) {
+			System.out.println(csvFields.length);
 			return addErrorAndMessage(messagePrefix + "has unsufficient number of fields.");
 		}
-		// check the db here
 		try {
 			if(registeredOrderIdsFromThisFile.contains(csvFields[CsvParser.INDEX_OF_ORDERID])) {
 				responseOfValidation.setOrderShouldBeInserted(false);
+				responseOfValidation.setOrderId(longParser(csvFields[CsvParser.INDEX_OF_ORDERID]));
 			} else {
-				if(!validateOrderId(csvFields[CsvParser.INDEX_OF_ORDERID])) {
-					return addErrorAndMessage(messagePrefix + " has an orderItemId, that has been already registered or its format is invalid.");
+				if(csvFields[CsvParser.INDEX_OF_ORDERID].isEmpty() || !validateOrderId(csvFields[CsvParser.INDEX_OF_ORDERID])) {
+					return addErrorAndMessage(messagePrefix + " has no orderItemId or it has been already registered or its format is invalid.");
 				}
 			}
-			if(!validateOrderItemId(csvFields[CsvParser.INDEX_OF_ORDERITEMID])) {
-				return addErrorAndMessage(messagePrefix + " has an orderId, that has been already registered or its format is invalid.");
+			
+			if(csvFields[CsvParser.INDEX_OF_ORDERITEMID].isEmpty() || !validateOrderItemId(csvFields[CsvParser.INDEX_OF_ORDERITEMID])) {
+				return addErrorAndMessage(messagePrefix + " has no orderId or it has been already registered or its format is invalid.");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return addErrorAndMessage(messagePrefix + "an error accured when trying to check if orderItem already existed in the database.");
 		}
-		if (!validateEmailFormat(csvFields[CsvParser.INDEX_OF_BUYEREMAIL])) {
-			return addErrorAndMessage(messagePrefix + "has invalid buyerEmail format.");
+		if (csvFields[CsvParser.INDEX_OF_BUYEREMAIL].isEmpty() || !validateEmailFormat(csvFields[CsvParser.INDEX_OF_BUYEREMAIL])) {
+			return addErrorAndMessage(messagePrefix + "has no buyerEmail or it its format is invalid.");
 		}
-		if (!validateDateFormat(csvFields[CsvParser.INDEX_OF_ORDERDATE])) {
-			return addErrorAndMessage(messagePrefix + "has invalid orderDate format.");
+		if(csvFields.length == CsvParser.CSV_NUMBER_OF_FIELDS) {
+			if (!validateDateFormat(csvFields[CsvParser.INDEX_OF_ORDERDATE])) { // TODO üres
+				return addErrorAndMessage(messagePrefix + "has invalid orderDate format.");
+			}
+		} else {
+			responseOfValidation.setOrderDate(new Date(new java.util.Date().getTime()));
 		}
-		if (!validateInteger(csvFields[CsvParser.INDEX_OF_POSTCODE])) {
-			return addErrorAndMessage(messagePrefix + "has invalid postCode format.");
+		if (csvFields[CsvParser.INDEX_OF_POSTCODE].isEmpty() || !validatePostcode(csvFields[CsvParser.INDEX_OF_POSTCODE])) {
+			return addErrorAndMessage(messagePrefix + "has no postCode or its format is invalid.");
 		}
-		if(!validatePositiveDecimal(csvFields[CsvParser.INDEX_OF_SHIPPINGPRICE], 0.00f)) { // TODO külön vizsgáljak értékre és formatra?
-			return addErrorAndMessage(messagePrefix + "has invalid shippingPrice format.");
+		if(csvFields[CsvParser.INDEX_OF_SHIPPINGPRICE].isEmpty() || !validatePositiveDecimal(csvFields[CsvParser.INDEX_OF_SHIPPINGPRICE], 0.00f, true)) {
+			return addErrorAndMessage(messagePrefix + "has no shippingPrice or its format is invalid.");
 		}
-		if(!validatePositiveDecimal(csvFields[CsvParser.INDEX_OF_SALEPRICE], 1.00f)) { // TODO külön vizsgáljak értékre és formatra?
-			return addErrorAndMessage(messagePrefix + "has invalid salePrice format.");
+		if(csvFields[CsvParser.INDEX_OF_SALEPRICE].isEmpty() || !validatePositiveDecimal(csvFields[CsvParser.INDEX_OF_SALEPRICE], 1.00f, false)) {
+			return addErrorAndMessage(messagePrefix + "has no salePrice or its format is invalid.");
 		}
-		if(!validateStatus(csvFields[CsvParser.INDEX_OF_STATUS])) {
-			return addErrorAndMessage(messagePrefix + "has invalid status.");
+		if(csvFields[CsvParser.INDEX_OF_SALEPRICE].isEmpty() || !validateStatus(csvFields[CsvParser.INDEX_OF_STATUS])) {
+			return addErrorAndMessage(messagePrefix + "has no status or its format is invalid.");
 		}
 		responseOfValidation.setResponseFileStatus(ResponseFileStatus.OK);
 		return responseOfValidation;
@@ -98,34 +105,46 @@ public class OrderValidator {
 		final String EMAIL_REGEX = "^[\\w-\\+]+(\\.[\\w]+)*@[\\w-]+(\\.[\\w]+)*(\\.[a-z]{2,})$";
 		final Pattern pattern = Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 		final Matcher matcher = pattern.matcher(emailAddress);
-		return matcher.matches();
+		boolean isValidEmail = matcher.matches();
+		if(isValidEmail) {
+			responseOfValidation.setBuyerEmail(emailAddress);
+		}
+		return isValidEmail;
 	}
 
 	public boolean validateDateFormat(String orderDate) {
 		try {
 			final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			Date date = sdf.parse(orderDate);
+			Date date = new Date(sdf.parse(orderDate).getTime());
 			if (!orderDate.equals(sdf.format(date))) {
 				return false;
 			}
+			responseOfValidation.setOrderDate(date);
 			return true;
 		} catch (ParseException e) {
 			return false;
 		}
 	}
 
-	public boolean validateInteger(String number) {
+	public boolean validatePostcode(String postCodeString) {
 		try {
-	        Integer.parseInt(number);
+	        Integer postCodeInt = Integer.parseInt(postCodeString);
+	        responseOfValidation.setPostCode(postCodeInt);
 	        return true;
 	    } catch (NumberFormatException ex) {
 	        return false;
 	    }
 	}
 	
-	public boolean validatePositiveDecimal(String number, float min) {
+	public boolean validatePositiveDecimal(String numberString, float min, boolean isShippingPrice) {
 		try {
-	        if(Float.parseFloat(number) >= min) {	        	
+			Float numberFloat = Float.parseFloat(numberString);
+	        if(numberFloat >= min) {
+	        	if(isShippingPrice) {
+	        		responseOfValidation.setShippingPrice(numberFloat);
+	        	} else {
+	        		responseOfValidation.setSalePrice(numberFloat);
+	        	}
 	        	return true;
 	        }
 	        return false;
@@ -136,7 +155,8 @@ public class OrderValidator {
 	
 	public boolean validateStatus(String status) {
 		try {
-			OrderItemStatus.valueOf(status);
+			OrderItemStatus orderItemStatus = OrderItemStatus.valueOf(status);
+			responseOfValidation.setOrderItemStatus(orderItemStatus);
 			return true;
 		} catch (IllegalArgumentException e) {
 			return false;
@@ -154,6 +174,7 @@ public class OrderValidator {
 		
 		if(notFound) {
 			registeredOrderIdsFromThisFile.add(orderId);
+			responseOfValidation.setOrderId(id);
 		}
 
 		return notFound;
@@ -166,8 +187,13 @@ public class OrderValidator {
 		}
 		OrderItemDao orderItemDao = OrderItemDao.getInstance();
 		ResultSet rs = orderItemDao.findById(id);
+		boolean notFound = !rs.isBeforeFirst();
 		
-		return !rs.isBeforeFirst();
+		if(notFound) {
+			responseOfValidation.setOrderItemId(id);
+		}
+		
+		return notFound;
 	}
 	
 	public Long longParser(String orderId) {
